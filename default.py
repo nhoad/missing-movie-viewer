@@ -74,7 +74,7 @@ def get_movie_sources():
                 shares.remove(s)
     return results
 
-def get_tv_files():
+def get_tv_files(show_errors):
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "id": 1}'))
     tv_shows = result['result']['tvshows']
     files = []
@@ -89,7 +89,8 @@ def get_tv_files():
             episodes = episode_result['result']['episodes']
             files.extend([ e['file'] for e in episodes ])
         except KeyError:
-            xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s!" % show_name, " Contact the developer!")
+            if show_errors:
+                xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s!" % show_name, "Contact the developer!")
 
         nothing = """
         seasons_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetSeasons", "params": {"tvshowid": %d}, "id": 1}' % show_id))
@@ -106,7 +107,7 @@ def get_tv_files():
     return files
 
 def get_tv_sources():
-    files = get_tv_files()
+    files = get_tv_files(False)
     files = [ os.path.dirname(f) for f in files ]
     files = remove_duplicates(files)
 
@@ -226,7 +227,7 @@ def show_tvshow_submenu():
         xbmcgui.Dialog().ok("ERROR!", "Could not detect TV paths! Contact developer!")
         return
 
-    files = get_tv_files()
+    files = get_tv_files(True)
 
     for tv_path in TV_PATHS:
         xbmcgui.Dialog().ok("ERROR!", "Checking %s" % tv_path)

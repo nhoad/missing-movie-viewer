@@ -74,7 +74,17 @@ def get_tv_files():
 
     for tv_show in tv_shows:
         show_id = tv_show['tvshowid']
+        show_name = tv_show['label']
 
+        episode_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params": {"tvshowid": %d, "season": "all"}, "id": 1}' % show_id))
+
+        try:
+            episodes = episode_result['result']['episodes']
+            files.extend([ e['file'] for e in episodes ])
+        except KeyError:
+            xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s! Contact the developer!" % show_name)
+
+        nothing = """
         seasons_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetSeasons", "params": {"tvshowid": %d}, "id": 1}' % show_id))
         seasons = seasons_result['result']['seasons']
         # will probably need tweaking to pick up special seasons and whatnot.
@@ -85,7 +95,7 @@ def get_tv_files():
             episodes = episode_result['result']['episodes']
 
             files.extend([ e['file'] for e in episodes ])
-
+        """
     return files
 
 def get_tv_sources():
@@ -161,15 +171,24 @@ def show_root_menu():
 def show_movie_submenu():
     ''' Show movies missing from the library. '''
     MOVIE_PATHS = get_movie_sources()
-    xbmcgui.Dialog().ok("LALALALALALALALAALALALAALALAALALALAALALALAALALALALALAALALA", "%s" % MOVIE_PATHS)
     if len(MOVIE_PATHS) == 0 or len(MOVIE_PATHS[0]) == 0:
         xbmcgui.Dialog().ok("ERROR!", "Could not detect movie paths! Contact developer!")
         return
     # use a horrid eval here to convert the string to a dictionary.
-    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "id": 1}'))
+    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "label", "trailer"]} "id": 1}'))
     movies = result['result']['movies']
     files = [ item['file'] for item in movies ]
     missing = []
+
+    # this magic section adds the files from trailers!
+    for m in movies:
+        try:
+            trailer = movies['trailer']
+
+            if not trailer.startswith('http://'):
+                files.append(trailer)
+        except KeyError:
+            pass
 
     for movie_path in MOVIE_PATHS:
         movie_files = get_files(movie_path)

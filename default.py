@@ -191,7 +191,7 @@ def show_movie_submenu():
     for m in movies:
         f = m['file']
         if f.startswith("videodb://"):
-            set_files = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s"} "id": 1}' % f))
+            set_files = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s"}, "id": 1}' % f))
 
             sub_files = [ item['file'] for item in set_files['result']['files'] ]
 

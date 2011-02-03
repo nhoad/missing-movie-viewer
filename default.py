@@ -31,7 +31,7 @@ def get_shares():
         print "FOUND SHARE: %s" % s
         if s.startswith('addons://'):
             shares.remove(s)
-        elif s.startswith('stack://')
+        elif s.startswith('stack://'):
             parts = s.split(' , ')
             parts = [ f.replace('%3a', ':') for f in parts ]
             parts = [ f.replace('%5c', '\\') for f in parts ]
@@ -89,7 +89,7 @@ def get_tv_files():
             episodes = episode_result['result']['episodes']
             files.extend([ e['file'] for e in episodes ])
         except KeyError:
-            xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s! Contact the developer!" % show_name)
+            xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s!" % show_name, " Contact the developer!")
 
         nothing = """
         seasons_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetSeasons", "params": {"tvshowid": %d}, "id": 1}' % show_id))
@@ -182,7 +182,7 @@ def show_movie_submenu():
         xbmcgui.Dialog().ok("ERROR!", "Could not detect movie paths! Contact developer!")
         return
     # use a horrid eval here to convert the string to a dictionary.
-    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "label", "trailer"]} "id": 1}'))
+    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "label", "trailer"]}, "id": 1}'))
     movies = result['result']['movies']
     files = [ item['file'] for item in movies ]
     missing = []

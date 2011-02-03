@@ -199,7 +199,7 @@ def show_movie_submenu():
         else:
             files.append(f)
             try:
-                trailer = movies['trailer']
+                trailer = m['trailer']
                 if not trailer.startswith('http://'):
                     files.append(trailer)
             except KeyError:

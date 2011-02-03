@@ -177,7 +177,7 @@ def show_root_menu():
 
 def show_movie_submenu():
     ''' Show movies missing from the library. '''
-    MOVIE_PATHS = get_movie_sources()
+    MOVIE_PATHS = remove_duplicates(get_movie_sources())
     if len(MOVIE_PATHS) == 0 or len(MOVIE_PATHS[0]) == 0:
         xbmcgui.Dialog().ok("ERROR!", "Could not detect movie paths! Contact developer!")
         return
@@ -187,7 +187,7 @@ def show_movie_submenu():
     files = [ item['file'] for item in movies ]
     missing = []
 
-    # this magic section adds the files from trailers!
+    # this magic section adds the files from trailers and sets!
     for m in movies:
         f = m['file']
         if f.startswith("videodb://"):
@@ -206,6 +206,7 @@ def show_movie_submenu():
                 pass
 
     for movie_path in MOVIE_PATHS:
+        xbmcgui.Dialog().ok("ERROR!", "Checking %s" % movie_path)
         movie_files = get_files(movie_path)
 
         for movie_file in movie_files:
@@ -220,7 +221,7 @@ def show_movie_submenu():
 
 def show_tvshow_submenu():
     ''' Show TV shows missing from the library. '''
-    TV_PATHS = get_tv_sources()
+    TV_PATHS = remove_duplicates(get_tv_sources())
     if len(TV_PATHS) == 0 or len(TV_PATHS[0]) == 0:
         xbmcgui.Dialog().ok("ERROR!", "Could not detect TV paths! Contact developer!")
         return
@@ -228,6 +229,7 @@ def show_tvshow_submenu():
     files = get_tv_files()
 
     for tv_path in TV_PATHS:
+        xbmcgui.Dialog().ok("ERROR!", "Checking %s" % tv_path)
         tv_files = get_files(tv_path)
 
         for tv_file in tv_files:

@@ -31,6 +31,14 @@ def get_shares():
         print "FOUND SHARE: %s" % s
         if s.startswith('addons://'):
             shares.remove(s)
+        elif s.startswith('stack://')
+            parts = s.split(' , ')
+            parts = [ f.replace('%3a', ':') for f in parts ]
+            parts = [ f.replace('%5c', '\\') for f in parts ]
+            parts = [ f.replace('%2f', '/') for f in parts ]
+
+            for b in parts:
+                results.append(b)
         elif s.startswith('multipath://'):
             s = s.replace('multipath://', '')
             parts = s.split('/')
@@ -61,7 +69,6 @@ def get_movie_sources():
             if f[-1] != os.sep:
                 f += os.sep
 
-#            xbmcgui.Dialog().ok("if:", "%s starts with" % f, "%s" % s)
             if f.startswith(s):
                 results.append(s)
                 shares.remove(s)
@@ -182,13 +189,21 @@ def show_movie_submenu():
 
     # this magic section adds the files from trailers!
     for m in movies:
-        try:
-            trailer = movies['trailer']
+        f = m['file']
+        if f.startswith("videodb://"):
+            set_files = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s"} "id": 1}' % f))
 
-            if not trailer.startswith('http://'):
-                files.append(trailer)
-        except KeyError:
-            pass
+            sub_files = [ item['file'] for item in set_files['result']['files'] ]
+
+            files.extend(sub_files)
+        else:
+            files.append(f)
+            try:
+                trailer = movies['trailer']
+                if not trailer.startswith('http://'):
+                    files.append(trailer)
+            except KeyError:
+                pass
 
     for movie_path in MOVIE_PATHS:
         movie_files = get_files(movie_path)

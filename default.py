@@ -215,7 +215,7 @@ def show_movie_submenu():
                 missing.append(movie_file)
                 print "%s NOT found!" % tv_file
             else:
-                movie_files.remove(movie_file)
+                files.remove(movie_file)
                 print "%s found!" % tv_file
 
     for movie_file in missing:
@@ -241,7 +241,7 @@ def show_tvshow_submenu():
                 addDirectoryItem(tv_file, isFolder=False)
             else:
                 print "%s found!" % tv_file
-                #tv_files.remove(tv_file)
+                # it looks like it should be tv_files instead of files, but it's not.
                 files.remove(tv_file)
 
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)

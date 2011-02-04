@@ -210,13 +210,13 @@ def show_movie_submenu():
         movie_files = get_files(movie_path)
 
         for movie_file in movie_files:
-            print "looking for %s in %s" % (tv_file, tv_path)
+            print "looking for %s in %s" % (movie_file, movie_path)
             if movie_file not in files:
                 missing.append(movie_file)
-                print "%s NOT found!" % tv_file
+                print "%s NOT found!" % movie_file
             else:
                 files.remove(movie_file)
-                print "%s found!" % tv_file
+                print "%s found!" % movie_file
 
     for movie_file in missing:
         addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))

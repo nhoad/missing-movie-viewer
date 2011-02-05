@@ -32,7 +32,9 @@ def get_shares():
         if s.startswith('addons://'):
             shares.remove(s)
         elif s.startswith('stack://'):
+            xbmcgui.Dialog().ok("Multi-file Movie!!", s)
             parts = s.split(' , ')
+            parts = [ f.replace('%21', '!') for f in parts ]
             parts = [ f.replace('%3a', ':') for f in parts ]
             parts = [ f.replace('%5c', '\\') for f in parts ]
             parts = [ f.replace('%2f', '/') for f in parts ]
@@ -45,6 +47,7 @@ def get_shares():
             parts = [ f.replace('%3a', ':') for f in parts ]
             parts = [ f.replace('%5c', '\\') for f in parts ]
             parts = [ f.replace('%2f', '/') for f in parts ]
+            parts = [ f.replace('%21', '!') for f in parts ]
 
             for b in parts:
                 if b:
@@ -76,6 +79,8 @@ def get_movie_sources():
 
 def get_tv_files(show_errors):
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "id": 1}'))
+    # NOTE:this should help me identify Yulquen's bug
+    print "VideoLibrary.GetTVShows results: %s" % tv_shows
     tv_shows = result['result']['tvshows']
     files = []
 
@@ -198,7 +203,6 @@ def show_movie_submenu():
 
             files.extend(sub_files)
         else:
-            files.append(f)
             try:
                 trailer = m['trailer']
                 if not trailer.startswith('http://'):
@@ -211,7 +215,13 @@ def show_movie_submenu():
 
         for movie_file in movie_files:
             print "looking for %s in %s" % (movie_file, movie_path)
-            if movie_file not in files:
+
+            # test if the file happens to be a trailer.
+            ext = os.path.splitext(movie_file.lower())[1]
+            if movie_file.lower().endswith("trailer" + ext):
+                print "%s is a trailer and will be ignored!" % movie_file
+                files.remove(movie_file)
+            elif movie_file not in files:
                 missing.append(movie_file)
                 print "%s NOT found!" % movie_file
             else:

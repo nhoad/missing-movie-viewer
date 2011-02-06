@@ -178,7 +178,8 @@ def show_movie_submenu():
     # use a horrid eval here to convert the string to a dictionary.
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "label", "trailer"]}, "id": 1}'))
     movies = result['result']['movies']
-    library_files = [ item['file'] for item in movies ]
+
+    library_files = []
     missing = []
 
     # this magic section adds the files from trailers and sets!
@@ -204,6 +205,7 @@ def show_movie_submenu():
             library_files.extend(sub_trailers)
         elif f.startswith('stack://'):
             xbmcgui.Dialog().ok("Multi-file Movie!!", f)
+            f = f.replace('stack://', '')
             parts = f.split(' , ')
             parts = [ f.replace('%21', '!') for f in parts ]
             parts = [ f.replace('%3a', ':') for f in parts ]
@@ -211,8 +213,10 @@ def show_movie_submenu():
             parts = [ f.replace('%2f', '/') for f in parts ]
 
             for b in parts:
+                xbmcgui.Dialog().ok("Multi-file Movie!!", b)
                 library_files.append(b)
         else:
+            library_files.append(f)
             try:
                 trailer = m['trailer']
                 if not trailer.startswith('http://'):

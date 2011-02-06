@@ -217,7 +217,6 @@ def show_movie_submenu():
 
         if not library_files.issuperset(movie_files):
             print "%s contains missing movies!" % movie_path
-            get the missing ones using this:
             missing.extend(list(movie_files.difference(library_files)))
 
     for movie_file in missing:

@@ -202,7 +202,7 @@ def show_movie_submenu():
             parts = [ f.replace('%2f', '/') for f in parts ]
 
             for b in parts:
-                results.append(b)
+                library_files.append(b)
         else:
             try:
                 trailer = m['trailer']

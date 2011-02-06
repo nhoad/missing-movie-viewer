@@ -16,11 +16,16 @@ SECOND_SUBMENU = "Unadded TV Shows"
 HELP_SUBMENU = "Help!"
 
 def remove_duplicates(files):
-    d = {}
-    for x in files:
-        d[x] = 1
+    # converting it to a set and back drops all duplicates
+    return list(set(files))
 
-    return list(d.keys())
+def clean_name(text):
+    text = text.replace('%21', '!')
+    text = text.replace('%3a', ':')
+    text = text.replace('%5c', '\\')
+    text = text.replace('%2f', '/')
+
+    return text
 
 def get_shares():
     shares = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetSources", "params": {"media": "video"}, "id": 1}'))['result']['shares']
@@ -34,10 +39,7 @@ def get_shares():
         elif s.startswith('multipath://'):
             s = s.replace('multipath://', '')
             parts = s.split('/')
-            parts = [ f.replace('%3a', ':') for f in parts ]
-            parts = [ f.replace('%5c', '\\') for f in parts ]
-            parts = [ f.replace('%2f', '/') for f in parts ]
-            parts = [ f.replace('%21', '!') for f in parts ]
+            parts = [ clean_name(f) for f in parts ]
 
             for b in parts:
                 if b:
@@ -70,7 +72,7 @@ def get_movie_sources():
 def get_tv_files(show_errors):
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "id": 1}'))
     # NOTE:this should help me identify Yulquen's bug
-    print "VideoLibrary.GetTVShows results: %s" % results
+    print "VideoLibrary.GetTVShows results: %s" % result
     tv_shows = result['result']['tvshows']
     files = []
 
@@ -194,52 +196,45 @@ def show_movie_submenu():
             sub_trailers =  []
 
             for item in set_files['result']['files']:
-                sub_files.append(item['file'])
+                sub_files.append(clean_name(item['file']))
                 try:
                     trailer = item['trailer']
                     if not trailer.startswith('http://'):
-                        library_files.append(trailer)
+                        library_files.append(clean_name(trailer))
                 except KeyError:
                     pass
 
             library_files.extend(sub_files)
             library_files.extend(sub_trailers)
         elif f.startswith('stack://'):
-            xbmcgui.Dialog().ok("Multi-file Movie!!", f)
             f = f.replace('stack://', '')
             parts = f.split(' , ')
-            parts = [ f.replace('%21', '!') for f in parts ]
-            parts = [ f.replace('%3a', ':') for f in parts ]
-            parts = [ f.replace('%5c', '\\') for f in parts ]
-            parts = [ f.replace('%2f', '/') for f in parts ]
+
+            parts = [ clean(f) for f in parts ]
 
             for b in parts:
-                xbmcgui.Dialog().ok("Multi-file Movie!!", b)
                 library_files.append(b)
         else:
-            library_files.append(f)
+            library_files.append(clean_name(f))
             try:
                 trailer = m['trailer']
                 if not trailer.startswith('http://'):
-                    library_files.append(trailer)
+                    library_files.append(clean_name(trailer))
             except KeyError:
                 pass
 
     library_files = set(library_files)
-    print "library_files: %s" % library_files
 
     for movie_path in MOVIE_PATHS:
         movie_files = set(get_files(movie_path))
-
-        print "movie_files: %s" % movie_files
 
         if not library_files.issuperset(movie_files):
             print "%s contains missing movies!" % movie_path
             missing.extend(list(movie_files.difference(library_files)))
 
     for movie_file in missing:
-        ext = os.path.splitext(movie_file.lower())[1]
-        if movie_file.lower().endswith("trailer" + ext):
+        # get the end of the filename without the extension
+        if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
             print "%s is a trailer and will be ignored!" % movie_file
         else:
             addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))

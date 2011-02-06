@@ -16,10 +16,11 @@
  <description lang="en">Missing Movie Viewer searches your source folders for videos not present in the library and displays them for you to view or add to the library yourself.
 
 Currently it has built in handle for the following file types:
-mpg, mpeg, avi, flv, wmv, mkv, 264, 3g2, 3gp, vob, mp4, mov
+mpg, mpeg, avi, flv, wmv, mkv, 264, 3g2, 3gp, vob, mp4, mov, iso and ogm.
 
 If you see any glaring errors or missing files that simply NEED to be in this list, let me know.
 
+Custom file extensions may be added via the settings menu.
 
  </description>
   </extension>

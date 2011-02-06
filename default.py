@@ -193,7 +193,7 @@ def show_movie_submenu():
             sub_files = [ item['file'] for item in set_files['result']['files'] ]
 
             library_files.extend(sub_files)
-        elif s.startswith('stack://'):
+        elif f.startswith('stack://'):
             xbmcgui.Dialog().ok("Multi-file Movie!!", s)
             parts = s.split(' , ')
             parts = [ f.replace('%21', '!') for f in parts ]

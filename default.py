@@ -221,11 +221,11 @@ def show_movie_submenu():
                 pass
 
     library_files = set(library_files)
+    print "library_files: %s" % library_files
 
     for movie_path in MOVIE_PATHS:
         movie_files = set(get_files(movie_path))
 
-        print "library_files: %s" % library_files
         print "movie_files: %s" % movie_files
 
         if not library_files.issuperset(movie_files):

@@ -24,6 +24,7 @@ def clean_name(text):
     text = text.replace('%3a', ':')
     text = text.replace('%5c', '\\')
     text = text.replace('%2f', '/')
+    text = text.replace('%2c', ',')
 
     return text
 

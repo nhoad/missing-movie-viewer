@@ -122,12 +122,10 @@ handle = int(sys.argv[1])
 FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'vob', 'mp4', 'mov', 'iso']
 FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").split(";"))
 
-def file_has_extensions(file, extensions):
+def file_has_extensions(filename, extensions):
     # get the file extension, without a leading colon.
-    extension = os.path.splitext(os.path.basename(file))[1][1:]
-
+    extension = os.path.splitext(os.path.basename(filename))[1][1:].lower()
     extensions = [ f.lower() for f in extensions ]
-    extension = extension.lower()
 
     return extension in extensions
 

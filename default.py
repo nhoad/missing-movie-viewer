@@ -220,11 +220,14 @@ def show_movie_submenu():
             except KeyError:
                 pass
 
+    library_files = set(library_files)
+
     for movie_path in MOVIE_PATHS:
         movie_files = set(get_files(movie_path))
-        library_files = set(library_files)
 
-        print library_files
+        print "library_files: %s" % library_files
+        print "movie_files: %s" % movie_files
+
         if not library_files.issuperset(movie_files):
             print "%s contains missing movies!" % movie_path
             missing.extend(list(movie_files.difference(library_files)))

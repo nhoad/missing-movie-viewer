@@ -119,7 +119,7 @@ def get_tv_sources():
 # plugin handle
 handle = int(sys.argv[1])
 
-FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'vob', 'mp4', 'mov', 'iso']
+FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'vob', 'mp4', 'mov', 'iso', 'ogm']
 FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").split(";"))
 
 def file_has_extensions(filename, extensions):

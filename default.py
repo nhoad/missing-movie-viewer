@@ -212,26 +212,20 @@ def show_movie_submenu():
                 pass
 
     for movie_path in MOVIE_PATHS:
-        movie_files = get_files(movie_path)
+        movie_files = set(get_files(movie_path))
+        library_files = set(library_files)
 
-
-        for movie_file in movie_files:
-            print "looking for %s in %s" % (movie_file, movie_path)
-
-            # test if the file happens to be a trailer.
-            ext = os.path.splitext(movie_file.lower())[1]
-            if movie_file.lower().endswith("trailer" + ext):
-                print "%s is a trailer and will be ignored!" % movie_file
-                library_files.remove(movie_file)
-            elif movie_file not in library_files:
-                missing.append(movie_file)
-                print "%s NOT found!" % movie_file
-            else:
-                library_files.remove(movie_file)
-                print "%s found!" % movie_file
+        if not library_files.issuperset(movie_files):
+            print "%s contains missing movies!" % movie_path
+            get the missing ones using this:
+            missing.extend(list(movie_files.difference(library_files)))
 
     for movie_file in missing:
-        addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
+        ext = os.path.splitext(movie_file.lower())[1]
+        if movie_file.lower().endswith("trailer" + ext):
+            print "%s is a trailer and will be ignored!" % movie_file
+        else:
+            addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 
 def show_tvshow_submenu():

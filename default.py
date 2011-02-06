@@ -282,15 +282,12 @@ params = parameters_string_to_dict(sys.argv[2])
 mode = int(params.get(PARAMETER_KEY_MODE, "0"))
 
 # Depending on the mode, call the appropriate function to build the UI.
-try:
-    if not sys.argv[2]:
-        # new start
-        ok = show_root_menu()
-    elif mode == MODE_FIRST:
-        ok = show_movie_submenu()
-    elif mode == MODE_SECOND:
-        ok = show_tvshow_submenu()
-    elif mode == MODE_HELP:
-        ok = show_help()
-except Exception, e:
-    xbmcgui.Dialog().ok("ERROR!", "An error occurred! Contact Developer.", str(e))
+if not sys.argv[2]:
+    # new start
+    ok = show_root_menu()
+elif mode == MODE_FIRST:
+    ok = show_movie_submenu()
+elif mode == MODE_SECOND:
+    ok = show_tvshow_submenu()
+elif mode == MODE_HELP:
+    ok = show_help()

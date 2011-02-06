@@ -31,16 +31,6 @@ def get_shares():
         print "FOUND SHARE: %s" % s
         if s.startswith('addons://'):
             shares.remove(s)
-        elif s.startswith('stack://'):
-            xbmcgui.Dialog().ok("Multi-file Movie!!", s)
-            parts = s.split(' , ')
-            parts = [ f.replace('%21', '!') for f in parts ]
-            parts = [ f.replace('%3a', ':') for f in parts ]
-            parts = [ f.replace('%5c', '\\') for f in parts ]
-            parts = [ f.replace('%2f', '/') for f in parts ]
-
-            for b in parts:
-                results.append(b)
         elif s.startswith('multipath://'):
             s = s.replace('multipath://', '')
             parts = s.split('/')
@@ -80,7 +70,7 @@ def get_movie_sources():
 def get_tv_files(show_errors):
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "id": 1}'))
     # NOTE:this should help me identify Yulquen's bug
-    print "VideoLibrary.GetTVShows results: %s" % tv_shows
+    print "VideoLibrary.GetTVShows results: %s" % results
     tv_shows = result['result']['tvshows']
     files = []
 
@@ -190,28 +180,40 @@ def show_movie_submenu():
     # use a horrid eval here to convert the string to a dictionary.
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "label", "trailer"]}, "id": 1}'))
     movies = result['result']['movies']
-    files = [ item['file'] for item in movies ]
+    library_files = [ item['file'] for item in movies ]
     missing = []
 
     # this magic section adds the files from trailers and sets!
     for m in movies:
         f = m['file']
+
         if f.startswith("videodb://"):
             set_files = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s"}, "id": 1}' % f))
 
             sub_files = [ item['file'] for item in set_files['result']['files'] ]
 
-            files.extend(sub_files)
+            library_files.extend(sub_files)
+        elif s.startswith('stack://'):
+            xbmcgui.Dialog().ok("Multi-file Movie!!", s)
+            parts = s.split(' , ')
+            parts = [ f.replace('%21', '!') for f in parts ]
+            parts = [ f.replace('%3a', ':') for f in parts ]
+            parts = [ f.replace('%5c', '\\') for f in parts ]
+            parts = [ f.replace('%2f', '/') for f in parts ]
+
+            for b in parts:
+                results.append(b)
         else:
             try:
                 trailer = m['trailer']
                 if not trailer.startswith('http://'):
-                    files.append(trailer)
+                    library_files.append(trailer)
             except KeyError:
                 pass
 
     for movie_path in MOVIE_PATHS:
         movie_files = get_files(movie_path)
+
 
         for movie_file in movie_files:
             print "looking for %s in %s" % (movie_file, movie_path)
@@ -220,12 +222,12 @@ def show_movie_submenu():
             ext = os.path.splitext(movie_file.lower())[1]
             if movie_file.lower().endswith("trailer" + ext):
                 print "%s is a trailer and will be ignored!" % movie_file
-                files.remove(movie_file)
-            elif movie_file not in files:
+                library_files.remove(movie_file)
+            elif movie_file not in library_files:
                 missing.append(movie_file)
                 print "%s NOT found!" % movie_file
             else:
-                files.remove(movie_file)
+                library_files.remove(movie_file)
                 print "%s found!" % movie_file
 
     for movie_file in missing:

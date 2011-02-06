@@ -292,4 +292,4 @@ try:
     elif mode == MODE_HELP:
         ok = show_help()
 except Exception, e:
-    xbmcgui.Dialog().ok("ERROR!", "An error occurred! Contact Developer.", e)
+    xbmcgui.Dialog().ok("ERROR!", "An error occurred! Contact Developer.", str(e))

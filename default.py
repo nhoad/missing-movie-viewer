@@ -210,7 +210,7 @@ def show_movie_submenu():
             f = f.replace('stack://', '')
             parts = f.split(' , ')
 
-            parts = [ clean(f) for f in parts ]
+            parts = [ clean_name(f) for f in parts ]
 
             for b in parts:
                 library_files.append(b)
@@ -249,6 +249,7 @@ def show_tvshow_submenu():
         return
 
     library_files = set(get_tv_files(True))
+    missing = []
 
     for tv_path in TV_PATHS:
         tv_files = set(get_files(tv_path))

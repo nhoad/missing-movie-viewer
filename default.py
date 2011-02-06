@@ -174,6 +174,7 @@ def show_movie_submenu():
     MOVIE_PATHS = remove_duplicates(get_movie_sources())
     if len(MOVIE_PATHS) == 0 or len(MOVIE_PATHS[0]) == 0:
         xbmcgui.Dialog().ok("ERROR!", "Could not detect movie paths! Contact developer!")
+        xbmcplugin.endOfDirectory(handle=handle, succeeded=False)
         return
     # use a horrid eval here to convert the string to a dictionary.
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "label", "trailer"]}, "id": 1}'))
@@ -249,22 +250,31 @@ def show_tvshow_submenu():
     TV_PATHS = remove_duplicates(get_tv_sources())
     if len(TV_PATHS) == 0 or len(TV_PATHS[0]) == 0:
         xbmcgui.Dialog().ok("ERROR!", "Could not detect TV paths! Contact developer!")
+        xbmcplugin.endOfDirectory(handle=handle, succeeded=False)
         return
 
-    files = get_tv_files(True)
+    library_files = set(get_tv_files(True))
 
     for tv_path in TV_PATHS:
-        tv_files = get_files(tv_path)
+        tv_files = set(get_files(tv_path))
 
+        if not library_files.issuperset(tv_files):
+            print "%s contains missing TV shows!" % tv_path
+            missing.extend(list(tv_files.difference(library_files)))
+
+    for tv_file in missing:
+        addDirectoryItem(tv_file, isFolder=False)
+
+        nothing = """
         for tv_file in tv_files:
             print "looking for %s in %s" % (tv_file, tv_path)
             if tv_file not in files:
                 print "%s NOT found!" % tv_file
-                addDirectoryItem(tv_file, isFolder=False)
             else:
                 print "%s found!" % tv_file
                 # it looks like it should be tv_files instead of files, but it's not.
                 files.remove(tv_file)
+        """
 
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 

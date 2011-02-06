@@ -213,8 +213,7 @@ def show_movie_submenu():
             parts = [ f.replace('%2f', '/') for f in parts ]
 
             for b in parts:
-                pass
-            #    library_files.append(b)
+                library_files.append(b)
         else:
             try:
                 trailer = m['trailer']
@@ -227,6 +226,7 @@ def show_movie_submenu():
         movie_files = set(get_files(movie_path))
         library_files = set(library_files)
 
+        print library_files
         if not library_files.issuperset(movie_files):
             print "%s contains missing movies!" % movie_path
             missing.extend(list(movie_files.difference(library_files)))

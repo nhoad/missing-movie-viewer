@@ -127,8 +127,13 @@ FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").s
 
 def file_has_extensions(filename, extensions):
     # get the file extension, without a leading colon.
-    extension = os.path.splitext(os.path.basename(filename))[1][1:].lower()
+    name, extension = os.path.splitext(os.path.basename(filename))
+    name = name.lower()
+    extension = extension[1:].lower()
     extensions = [ f.lower() for f in extensions ]
+
+    if extension == 'ifo' and name != 'video_ts':
+        return False
 
     return extension in extensions
 

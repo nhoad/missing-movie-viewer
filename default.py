@@ -122,7 +122,7 @@ def get_tv_sources():
 # plugin handle
 handle = int(sys.argv[1])
 
-FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'vob', 'mp4', 'mov', 'iso', 'ogm']
+FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'ifo', 'mp4', 'mov', 'iso', 'ogm']
 FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").split(";"))
 
 def file_has_extensions(filename, extensions):
@@ -231,6 +231,7 @@ def show_movie_submenu():
 
         if not library_files.issuperset(movie_files):
             print "%s contains missing movies!" % movie_path
+            print "missing movies: %s" % list(movie_files.difference(library_files))
             missing.extend(list(movie_files.difference(library_files)))
 
     for movie_file in missing:

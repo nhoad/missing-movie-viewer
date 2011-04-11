@@ -3,5 +3,6 @@
     <!-- Settings -->
     <string id="31000">Misc Settings (semicolon delimited)</string>
     <string id="31001">Custom File Extensions</string>
+    <string id="31001">Search Results File</string>
 </strings>
 

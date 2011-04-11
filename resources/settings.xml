@@ -2,5 +2,6 @@
 <settings>
     <setting type="lsep" label="31000" />
     <setting id="custom_file_extensions" type="text" label="31001" default="" />
+    <setting id="output_file" type="text" label="31002" default="" />
 </settings>
 

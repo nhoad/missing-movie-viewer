@@ -2,6 +2,8 @@ import sys, os
 import xbmc, xbmcgui, xbmcplugin
 import urllib
 
+import datetime
+
 # plugin modes
 MODE_FIRST = 10
 MODE_SECOND = 20
@@ -14,6 +16,17 @@ PARAMETER_KEY_MODE = "mode"
 FIRST_SUBMENU = "Unadded Movies"
 SECOND_SUBMENU = "Unadded TV Shows"
 HELP_SUBMENU = "Help!"
+
+# plugin handle
+handle = int(sys.argv[1])
+
+FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'ifo', 'mp4', 'mov', 'iso', 'ogm']
+FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").split(";"))
+
+OUTPUT_FILE = xbmcplugin.getSetting(handle, "output_file");
+
+if not OUTPUT_FILE:
+    OUTPUT_FILE = 'missing-movies.txt'
 
 def remove_duplicates(files):
     # converting it to a set and back drops all duplicates
@@ -36,8 +49,10 @@ def get_shares():
     for s in shares:
         print "FOUND SHARE: %s" % s
         if s.startswith('addons://'):
+            print s, 'is an addon share, ignoring...'
             shares.remove(s)
         elif s.startswith('multipath://'):
+            print s, 'is a multipath share, splitting and adding individuals...'
             s = s.replace('multipath://', '')
             parts = s.split('/')
             parts = [ clean_name(f) for f in parts ]
@@ -46,6 +61,7 @@ def get_shares():
                 if b:
                     results.append(b)
         else:
+            print s, 'is a straight forward share, adding...'
             results.append(s)
 
     return results
@@ -66,6 +82,7 @@ def get_movie_sources():
                 f += os.sep
 
             if f.startswith(s):
+                print s, 'was confirmed as a movie share using', f
                 results.append(s)
                 shares.remove(s)
     return results
@@ -81,7 +98,7 @@ def get_tv_files(show_errors):
         show_id = tv_show['tvshowid']
         show_name = tv_show['label']
 
-        episode_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params": {"tvshowid": %d, "season": "all"}, "id": 1}' % show_id))
+        episode_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params": {"tvshowid": %d}, "id": 1}' % show_id))
 
         try:
             episodes = episode_result['result']['episodes']
@@ -115,15 +132,10 @@ def get_tv_sources():
     for f in files:
         for s in shares:
             if f.startswith(s):
+                print s, 'was confirmed as a tv show share using', f
                 results.append(s)
                 shares.remove(s)
     return results
-
-# plugin handle
-handle = int(sys.argv[1])
-
-FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'ifo', 'mp4', 'mov', 'iso', 'ogm']
-FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").split(";"))
 
 def file_has_extensions(filename, extensions):
     # get the file extension, without a leading colon.
@@ -239,12 +251,19 @@ def show_movie_submenu():
             print "missing movies: %s" % list(movie_files.difference(library_files))
             missing.extend(list(movie_files.difference(library_files)))
 
-    for movie_file in missing:
-        # get the end of the filename without the extension
-        if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
-            print "%s is a trailer and will be ignored!" % movie_file
-        else:
-            addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
+    with open(OUTPUT_FILE, 'a') as f:
+        now = datetime.datetime.now()
+
+        f.write('search results for missing movies using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
+
+        for movie_file in missing:
+            # get the end of the filename without the extension
+            if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
+                print "%s is a trailer and will be ignored!" % movie_file
+            else:
+                addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
+                f.write(tv_file)
+
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 
 def show_tvshow_submenu():
@@ -265,8 +284,15 @@ def show_tvshow_submenu():
             print "%s contains missing TV shows!" % tv_path
             missing.extend(list(tv_files.difference(library_files)))
 
-    for tv_file in missing:
-        addDirectoryItem(tv_file, isFolder=False)
+    with open(OUTPUT_FILE, 'w') as f:
+        now = datetime.datetime.now()
+
+        f.write('search results for missing tv shows using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
+
+        for tv_file in missing:
+            addDirectoryItem(tv_file, isFolder=False)
+            f.write(tv_file)
+
 
         nothing = """
         for tv_file in tv_files:

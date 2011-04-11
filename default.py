@@ -251,7 +251,7 @@ def show_movie_submenu():
             print "missing movies: %s" % list(movie_files.difference(library_files))
             missing.extend(list(movie_files.difference(library_files)))
 
-    f = open(OUTPUT_FILE, 'a'):
+    f = open(OUTPUT_FILE, 'a')
     now = datetime.datetime.now()
 
     f.write('search results for missing movies using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
@@ -286,7 +286,7 @@ def show_tvshow_submenu():
             print "%s contains missing TV shows!" % tv_path
             missing.extend(list(tv_files.difference(library_files)))
 
-    f = open(OUTPUT_FILE, 'w'):
+    f = open(OUTPUT_FILE, 'w')
     now = datetime.datetime.now()
 
     f.write('search results for missing tv shows using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))

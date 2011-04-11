@@ -251,18 +251,20 @@ def show_movie_submenu():
             print "missing movies: %s" % list(movie_files.difference(library_files))
             missing.extend(list(movie_files.difference(library_files)))
 
-    with open(OUTPUT_FILE, 'a') as f:
-        now = datetime.datetime.now()
+    f = open(OUTPUT_FILE, 'a'):
+    now = datetime.datetime.now()
 
-        f.write('search results for missing movies using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
+    f.write('search results for missing movies using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
 
-        for movie_file in missing:
-            # get the end of the filename without the extension
-            if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
-                print "%s is a trailer and will be ignored!" % movie_file
-            else:
-                addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
-                f.write(tv_file)
+    for movie_file in missing:
+        # get the end of the filename without the extension
+        if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
+            print "%s is a trailer and will be ignored!" % movie_file
+        else:
+            addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
+            f.write(tv_file)
+
+    f.close()
 
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 
@@ -284,14 +286,16 @@ def show_tvshow_submenu():
             print "%s contains missing TV shows!" % tv_path
             missing.extend(list(tv_files.difference(library_files)))
 
-    with open(OUTPUT_FILE, 'w') as f:
-        now = datetime.datetime.now()
+    f = open(OUTPUT_FILE, 'w'):
+    now = datetime.datetime.now()
 
-        f.write('search results for missing tv shows using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
+    f.write('search results for missing tv shows using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
 
-        for tv_file in missing:
-            addDirectoryItem(tv_file, isFolder=False)
-            f.write(tv_file)
+    for tv_file in missing:
+        addDirectoryItem(tv_file, isFolder=False)
+        f.write(tv_file)
+
+    f.close()
 
 
         nothing = """

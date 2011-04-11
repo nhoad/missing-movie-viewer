@@ -297,17 +297,16 @@ def show_tvshow_submenu():
 
     f.close()
 
-
-        nothing = """
-        for tv_file in tv_files:
-            print "looking for %s in %s" % (tv_file, tv_path)
-            if tv_file not in files:
-                print "%s NOT found!" % tv_file
-            else:
-                print "%s found!" % tv_file
-                # it looks like it should be tv_files instead of files, but it's not.
-                files.remove(tv_file)
-        """
+    nothing = """
+    for tv_file in tv_files:
+        print "looking for %s in %s" % (tv_file, tv_path)
+        if tv_file not in files:
+            print "%s NOT found!" % tv_file
+        else:
+            print "%s found!" % tv_file
+            # it looks like it should be tv_files instead of files, but it's not.
+            files.remove(tv_file)
+    """
 
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 

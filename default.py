@@ -49,10 +49,10 @@ def get_shares():
     for s in shares:
         print "FOUND SHARE: %s" % s
         if s.startswith('addons://'):
-            print s + 'is an addon share, ignoring...'
+            print s + ' is an addon share, ignoring...'
             shares.remove(s)
         elif s.startswith('multipath://'):
-            print s + 'is a multipath share, splitting and adding individuals...'
+            print s + ' is a multipath share, splitting and adding individuals...'
             s = s.replace('multipath://', '')
             parts = s.split('/')
             parts = [ clean_name(f) for f in parts ]
@@ -61,7 +61,7 @@ def get_shares():
                 if b:
                     results.append(b)
         else:
-            print s + 'is a straight forward share, adding...'
+            print s + ' is a straight forward share, adding...'
             results.append(s)
 
     return results
@@ -251,7 +251,13 @@ def show_movie_submenu():
             print "missing movies: %s" % list(movie_files.difference(library_files))
             missing.extend(list(movie_files.difference(library_files)))
 
-    f = open(OUTPUT_FILE, 'a')
+    f = None
+
+    try:
+        f = open(OUTPUT_FILE, 'a')
+    except IOError:
+        f = open(OUTPUT_FILE, 'w')
+
     now = datetime.datetime.now()
 
     f.write('search results for missing movies using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
@@ -286,7 +292,13 @@ def show_tvshow_submenu():
             print "%s contains missing TV shows!" % tv_path
             missing.extend(list(tv_files.difference(library_files)))
 
-    f = open(OUTPUT_FILE, 'w')
+    f = None
+
+    try:
+        f = open(OUTPUT_FILE, 'a')
+    except IOError:
+        f = open(OUTPUT_FILE, 'w')
+
     now = datetime.datetime.now()
 
     f.write('search results for missing tv shows using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))

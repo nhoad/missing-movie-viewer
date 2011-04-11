@@ -49,10 +49,10 @@ def get_shares():
     for s in shares:
         print "FOUND SHARE: %s" % s
         if s.startswith('addons://'):
-            print s, 'is an addon share, ignoring...'
+            print s + 'is an addon share, ignoring...'
             shares.remove(s)
         elif s.startswith('multipath://'):
-            print s, 'is a multipath share, splitting and adding individuals...'
+            print s + 'is a multipath share, splitting and adding individuals...'
             s = s.replace('multipath://', '')
             parts = s.split('/')
             parts = [ clean_name(f) for f in parts ]
@@ -61,7 +61,7 @@ def get_shares():
                 if b:
                     results.append(b)
         else:
-            print s, 'is a straight forward share, adding...'
+            print s + 'is a straight forward share, adding...'
             results.append(s)
 
     return results
@@ -82,7 +82,7 @@ def get_movie_sources():
                 f += os.sep
 
             if f.startswith(s):
-                print s, 'was confirmed as a movie share using', f
+                print s + ' was confirmed as a movie share using ' + f
                 results.append(s)
                 shares.remove(s)
     return results
@@ -132,7 +132,7 @@ def get_tv_sources():
     for f in files:
         for s in shares:
             if f.startswith(s):
-                print s, 'was confirmed as a tv show share using', f
+                print s + ' was confirmed as a tv show share using ' + f
                 results.append(s)
                 shares.remove(s)
     return results

@@ -260,7 +260,7 @@ def show_movie_submenu():
 
     now = datetime.datetime.now()
 
-    f.write('search results for missing movies using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
+    f.write('%s: search results for missing movies using the missing movies plugin:' % now.strftime('%Y-%m-%d %H:%M'))
 
     for movie_file in missing:
         # get the end of the filename without the extension
@@ -301,7 +301,7 @@ def show_tvshow_submenu():
 
     now = datetime.datetime.now()
 
-    f.write('search results for missing tv shows using the missing movies plugin: ', now.strftime('%Y-%m-%d %H:%M'))
+    f.write('%s: search results for missing tv shows using the missing movies plugin:' % now.strftime('%Y-%m-%d %H:%M'))
 
     for tv_file in missing:
         addDirectoryItem(tv_file, isFolder=False)

@@ -200,8 +200,8 @@ def show_movie_submenu():
         xbmcgui.Dialog().ok("ERROR!", "Could not detect movie paths! Contact developer!")
         xbmcplugin.endOfDirectory(handle=handle, succeeded=False)
         return
-    # use a horrid eval here to convert the string to a dictionary.
-    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "label", "trailer"]}, "id": 1}'))
+
+    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "title", "trailer"]}, "id": 1}'))
     movies = result['result']['movies']
 
     library_files = []

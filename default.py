@@ -253,7 +253,9 @@ def show_movie_submenu():
         if not library_files.issuperset(movie_files):
             print "%s contains missing movies!" % movie_path
             print "missing movies: %s" % list(movie_files.difference(library_files))
-            missing.extend(list(movie_files.difference(library_files)))
+            l = list(movie_files.difference(library_files))
+            l.sort()
+            missing.extend(l)
 
     f = None
 
@@ -294,7 +296,9 @@ def show_tvshow_submenu():
 
         if not library_files.issuperset(tv_files):
             print "%s contains missing TV shows!" % tv_path
-            missing.extend(list(tv_files.difference(library_files)))
+            l = list(tv_files.difference(library_files))
+            l.sort()
+            missing.extend(l)
 
     f = None
 

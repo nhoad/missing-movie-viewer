@@ -207,6 +207,7 @@ def show_movie_submenu():
     library_files = []
     missing = []
 
+    print "SEARCHING MOVIES"
     # this magic section adds the files from trailers and sets!
     for m in movies:
         f = m['file']

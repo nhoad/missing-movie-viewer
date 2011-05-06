@@ -26,7 +26,7 @@ FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").s
 OUTPUT_FILE = xbmcplugin.getSetting(handle, "output_file");
 
 if not OUTPUT_FILE:
-    OUTPUT_FILE = 'missing-movies.txt'
+    OUTPUT_FILE = '/home/xbmc/missing-movies.txt'
 
 def remove_duplicates(files):
     # converting it to a set and back drops all duplicates
@@ -38,6 +38,8 @@ def clean_name(text):
     text = text.replace('%5c', '\\')
     text = text.replace('%2f', '/')
     text = text.replace('%2c', ',')
+    text = text.replace('%5f', '_')
+    text = text.replace('%20', ' ')
 
     return text
 
@@ -253,7 +255,7 @@ def show_movie_submenu():
 
     f = None
 
-    try:
+    tmp = """try:
         f = open(OUTPUT_FILE, 'a')
     except IOError:
         f = open(OUTPUT_FILE, 'w')
@@ -261,16 +263,16 @@ def show_movie_submenu():
     now = datetime.datetime.now()
 
     f.write('%s: search results for missing movies using the missing movies plugin:' % now.strftime('%Y-%m-%d %H:%M'))
-
+    """
     for movie_file in missing:
         # get the end of the filename without the extension
         if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
             print "%s is a trailer and will be ignored!" % movie_file
         else:
             addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
-            f.write(tv_file)
+            #f.write(tv_file)
 
-    f.close()
+    #f.close()
 
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 
@@ -294,7 +296,7 @@ def show_tvshow_submenu():
 
     f = None
 
-    try:
+    tmp = """try:
         f = open(OUTPUT_FILE, 'a')
     except IOError:
         f = open(OUTPUT_FILE, 'w')
@@ -302,12 +304,12 @@ def show_tvshow_submenu():
     now = datetime.datetime.now()
 
     f.write('%s: search results for missing tv shows using the missing movies plugin:' % now.strftime('%Y-%m-%d %H:%M'))
-
+    """
     for tv_file in missing:
         addDirectoryItem(tv_file, isFolder=False)
-        f.write(tv_file)
+        #f.write(tv_file)
 
-    f.close()
+    #f.close()
 
     nothing = """
     for tv_file in tv_files:

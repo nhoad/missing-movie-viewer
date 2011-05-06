@@ -71,7 +71,7 @@ def get_shares():
 def get_movie_sources():
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "id": 1}'))
     movies = result['result']['movies']
-    echo movies
+    print movies
     files = [ item['file'] for item in movies ]
     files = [ os.path.dirname(f) for f in files ]
     files = remove_duplicates(files)

@@ -69,7 +69,7 @@ def get_shares():
     return results
 
 def get_movie_sources():
-    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ['file']}, "id": 1}'))
+    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "label", "trailer"]}, "id": 1}'))
     movies = result['result']['movies']
     print movies
     files = [ item['file'] for item in movies ]

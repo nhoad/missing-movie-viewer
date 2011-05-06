@@ -18,6 +18,7 @@ SECOND_SUBMENU = "Unadded TV Shows"
 HELP_SUBMENU = "Help!"
 
 # plugin handle
+print "THESE ARE THE SYS ARGUMENTS: %s" % sys.argv
 handle = int(sys.argv[1])
 
 FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'ifo', 'mp4', 'mov', 'iso', 'ogm']

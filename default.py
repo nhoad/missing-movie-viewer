@@ -45,7 +45,7 @@ def clean_name(text):
     return text
 
 def get_shares():
-    shares = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetSources", "params": {"media": "video"}, "id": 1}'))['result']['shares']
+    shares = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetSources", "params": {"media": "video"}, "id": 1}'))['result']['sources']
     shares = [ s['file'] for s in shares ]
 
     results = []
@@ -70,7 +70,7 @@ def get_shares():
     return results
 
 def get_movie_sources():
-    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file"]}, "id": 1}'))
+    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params":{"properties": ["file"]},  "id": 1}'))
     print result
     movies = result['result']['movies']
     print movies
@@ -103,8 +103,8 @@ def get_tv_files(show_errors):
         show_id = tv_show['tvshowid']
         show_name = tv_show['label']
 
-        episode_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params": {"tvshowid": %d}, "id": 1}' % show_id))
-
+        episode_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params": {"tvshowid": %d, "properties": ["file"]}, "id": 1}' % show_id))
+		
         try:
             episodes = episode_result['result']['episodes']
             files.extend([ e['file'] for e in episodes ])
@@ -202,7 +202,7 @@ def show_movie_submenu():
         xbmcplugin.endOfDirectory(handle=handle, succeeded=False)
         return
 
-    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields": ["file", "title", "trailer"]}, "id": 1}'))
+    result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params":{"properties": ["file"]},  "id": 1}'))
     movies = result['result']['movies']
 
     library_files = []

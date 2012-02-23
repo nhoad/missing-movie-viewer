@@ -17,20 +17,20 @@ FIRST_SUBMENU = "Unadded Movies"
 SECOND_SUBMENU = "Unadded TV Shows"
 HELP_SUBMENU = "Help!"
 
-def _log(txt, severity=xbmc.LOGDEBUG):
+def log(txt, severity=xbmc.LOGDEBUG):
     try:
-        message = ('%s' % (txt) )
+        message = ("%s" % txt)
         xbmc.log(msg=message, level=severity)
     except UnicodeEncodeError:
         try:
-            Lmessage = _normalize_string('%s' % (txt) )
+            Lmessage = _normalize_string("%s" % txt)
             xbmc.log(msg=message, level=severity)
         except:
-            message = ('UnicodeEncodeError')
+            message = ("UnicodeEncodeError")
             xbmc.log(msg=message, level=xbmc.LOGWARNING) 
 
 # plugin handle
-_log("THESE ARE THE SYS ARGUMENTS: %s" % sys.argv)
+log("THESE ARE THE SYS ARGUMENTS: %s" % sys.argv)
 handle = int(sys.argv[1])
 
 FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'ifo', 'mp4', 'mov', 'iso', 'ogm']
@@ -39,7 +39,7 @@ FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").s
 OUTPUT_FILE = xbmcplugin.getSetting(handle, "output_file");
 
 if not OUTPUT_FILE:
-    OUTPUT_FILE = '/home/xbmc/missing-movies.txt'   
+    OUTPUT_FILE = "/home/xbmc/missing-movies.txt" 
     
 def remove_duplicates(files):
     # converting it to a set and back drops all duplicates
@@ -56,18 +56,18 @@ def clean_name(text):
 
     return text
 
-def get_shares():
-    shares = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetSources", "params": {"media": "video"}, "id": 1}'))['result']['sources']
-    shares = [ s['file'] for s in shares ]
+def get_sources():
+    sources = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetSources", "params": {"media": "video"}, "id": 1}'))['result']['sources']
+    sources = [ s['file'] for s in sources ]
 
     results = []
-    for s in shares:
-        _log("FOUND SHARE: %s" % s)
+    for s in sources:
+        log("FOUND SOURCE: %s" % s, xbmc.LOGINFO)
         if s.startswith('addons://'):
-            _log(s + ' is an addon share, ignoring...')
-            shares.remove(s)
+            log("%s is an addon source, ignoring..." % s, xbmc.LOGINFO)
+            sources.remove(s)
         elif s.startswith('multipath://'):
-            _log(s + ' is a multipath share, splitting and adding individuals...')
+            log("%s is a multipath source, splitting and adding individuals..." % s, xbmc.LOGINFO)
             s = s.replace('multipath://', '')
             parts = s.split('/')
             parts = [ clean_name(f) for f in parts ]
@@ -76,38 +76,38 @@ def get_shares():
                 if b:
                     results.append(b)
         else:
-            _log(s + ' is a straight forward share, adding...')
+            log("%s is a straight forward source, adding...", xbmc.LOGINFO)
             results.append(s)
 
     return results
 
 def get_movie_sources():
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params":{"properties": ["file"]},  "id": 1}'))
-    _log(result)
+    log(result, xbmc.LOGDEBUG)
     movies = result['result']['movies']
-    _log(movies)
+    log(movies, xbmc.LOGDEBUG)
     files = [ item['file'] for item in movies ]
     files = [ os.path.dirname(f) for f in files ]
     files = remove_duplicates(files)
 
-    shares = remove_duplicates(get_shares())
+    sources = remove_duplicates(get_sources())
 
     results = []
     for f in files:
-        for s in shares:
+        for s in sources:
             if f[-1] != os.sep:
                 f += os.sep
 
             if f.startswith(s):
-                _log(s + ' was confirmed as a movie share using ' + f)
+                log("%s was confirmed as a movie share using %s" % (s, f), xbmc.LOGINFO)
                 results.append(s)
-                shares.remove(s)
+                sources.remove(s)
+                
     return results
 
 def get_tv_files(show_errors):
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "id": 1}'))
-    # NOTE:this should help me identify Yulquen's bug
-    _log("VideoLibrary.GetTVShows results: %s" % result)
+    log("VideoLibrary.GetTVShows results: %s" % result, xbmc.LOGDEBUG)
     tv_shows = result['result']['tvshows']
     files = []
 
@@ -122,20 +122,8 @@ def get_tv_files(show_errors):
             files.extend([ e['file'] for e in episodes ])
         except KeyError:
             if show_errors:
-                xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s!" % show_name, "Contact the developer if this is wrong!")
+                xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s!" % show_name, "Contact the developer if there actually are episodes!")
 
-        nothing = """
-        seasons_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetSeasons", "params": {"tvshowid": %d}, "id": 1}' % show_id))
-        seasons = seasons_result['result']['seasons']
-        # will probably need tweaking to pick up special seasons and whatnot.
-        seasons = [ f['label'].split(' ')[1] for f in seasons if f['label'].startswith('Season')]
-
-        for season_no in seasons:
-            episode_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params": {"tvshowid": %d, "season": %s}, "id": 1}' % (show_id, season_no)))
-            episodes = episode_result['result']['episodes']
-
-            files.extend([ e['file'] for e in episodes ])
-        """
     return files
 
 def get_tv_sources():
@@ -143,15 +131,15 @@ def get_tv_sources():
     files = [ os.path.dirname(f) for f in files ]
     files = remove_duplicates(files)
 
-    shares = remove_duplicates(get_shares())
+    sources = remove_duplicates(get_sources())
 
     results = []
     for f in files:
-        for s in shares:
+        for s in sources:
             if f.startswith(s):
-                print s + ' was confirmed as a tv show share using ' + f
+                log("%s was confirmed as a TV source using %s" % (s, f), xbmc.LOGINFO)
                 results.append(s)
-                shares.remove(s)
+                sources.remove(s)
     return results
 
 def file_has_extensions(filename, extensions):
@@ -189,7 +177,7 @@ def parameters_string_to_dict(parameters):
     return paramDict
 
 def addDirectoryItem(name, isFolder=True, parameters={}, totalItems=1):
-    ''' Add a list item to the XBMC UI.'''
+    ''' Add a list item to the XBMC UI. '''
     li = xbmcgui.ListItem(name)
 
     url = sys.argv[0] + '?' + urllib.urlencode(parameters)
@@ -208,9 +196,10 @@ def show_root_menu():
 
 def show_movie_submenu():
     ''' Show movies missing from the library. '''
-    MOVIE_PATHS = remove_duplicates(get_movie_sources())
-    if len(MOVIE_PATHS) == 0 or len(MOVIE_PATHS[0]) == 0:
-        xbmcgui.Dialog().ok("ERROR!", "Could not detect movie paths! Contact developer!")
+    movie_sources = remove_duplicates(get_movie_sources())
+    if len(movie_sources) == 0 or len(movie_sources[0]) == 0:
+        xbmcgui.Dialog().ok("ERROR!", "Could not detect movie sources! Contact developer!")
+        log("No movie sources!", xbmc.LOGERROR)
         xbmcplugin.endOfDirectory(handle=handle, succeeded=False)
         return
 
@@ -220,7 +209,7 @@ def show_movie_submenu():
     library_files = []
     missing = []
 
-    _log("SEARCHING MOVIES")
+    log("SEARCHING MOVIES", xbmc.LOGNOTICE)
     # this magic section adds the files from trailers and sets!
     for m in movies:
         f = m['file']
@@ -261,86 +250,49 @@ def show_movie_submenu():
 
     library_files = set(library_files)
 
-    for movie_path in MOVIE_PATHS:
-        movie_files = set(get_files(movie_path))
+    for movie_source in movie_sources:
+        movie_files = set(get_files(movie_source))
 
         if not library_files.issuperset(movie_files):
-            _log("%s contains missing movies!" % movie_path)
-            _log("missing movies: %s" % list(movie_files.difference(library_files)))
+            log("%s contains missing movies!" % movie_source, xbmc.LOGNOTICE)
+            log("missing movies: %s" % list(movie_files.difference(library_files)), xbmc.LOGNOTICE)
             l = list(movie_files.difference(library_files))
             l.sort()
             missing.extend(l)
 
-    f = None
-
-    tmp = """try:
-        f = open(OUTPUT_FILE, 'a')
-    except IOError:
-        f = open(OUTPUT_FILE, 'w')
-
-    now = datetime.datetime.now()
-
-    f.write('%s: search results for missing movies using the missing movies plugin:' % now.strftime('%Y-%m-%d %H:%M'))
-    """
     for movie_file in missing:
         # get the end of the filename without the extension
         if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
             _log("%s is a trailer and will be ignored!" % movie_file)
         else:
             addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
-            #f.write(tv_file)
-
-    #f.close()
 
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 
 def show_tvshow_submenu():
     ''' Show TV shows missing from the library. '''
-    TV_PATHS = remove_duplicates(get_tv_sources())
-    if len(TV_PATHS) == 0 or len(TV_PATHS[0]) == 0:
-        xbmcgui.Dialog().ok("ERROR!", "Could not detect TV paths! Contact developer!")
+    tv_sources = remove_duplicates(get_tv_sources())
+    if len(tv_sources) == 0 or len(tv_sources[0]) == 0:
+        xbmcgui.Dialog().ok("ERROR!", "Could not detect TV sources! Contact developer if they do exist!")
+        log("No TV sources!", xbmc.LOGERROR)
         xbmcplugin.endOfDirectory(handle=handle, succeeded=False)
         return
 
     library_files = set(get_tv_files(True))
     missing = []
 
-    for tv_path in TV_PATHS:
-        tv_files = set(get_files(tv_path))
+    log("SEARCHING TV SHOWS", xbmc.LOGNOTICE);
+    for tv_source in tv_sources:
+        tv_files = set(get_files(tv_source))
 
         if not library_files.issuperset(tv_files):
-            _log("%s contains missing TV shows!" % tv_path)
+            log("%s contains missing TV shows!" % tv_source, xbmc.LOGNOTICE)
             l = list(tv_files.difference(library_files))
             l.sort()
             missing.extend(l)
 
-    f = None
-
-    tmp = """try:
-        f = open(OUTPUT_FILE, 'a')
-    except IOError:
-        f = open(OUTPUT_FILE, 'w')
-
-    now = datetime.datetime.now()
-
-    f.write('%s: search results for missing tv shows using the missing movies plugin:' % now.strftime('%Y-%m-%d %H:%M'))
-    """
     for tv_file in missing:
         addDirectoryItem(tv_file, isFolder=False)
-        #f.write(tv_file)
-
-    #f.close()
-
-    nothing = """
-    for tv_file in tv_files:
-        print "looking for %s in %s" % (tv_file, tv_path)
-        if tv_file not in files:
-            print "%s NOT found!" % tv_file
-        else:
-            print "%s found!" % tv_file
-            # it looks like it should be tv_files instead of files, but it's not.
-            files.remove(tv_file)
-    """
 
     xbmcplugin.endOfDirectory(handle=handle, succeeded=True)
 

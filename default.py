@@ -17,8 +17,20 @@ FIRST_SUBMENU = "Unadded Movies"
 SECOND_SUBMENU = "Unadded TV Shows"
 HELP_SUBMENU = "Help!"
 
+def _log(txt, severity=xbmc.LOGDEBUG):
+    try:
+        message = ('%s' % (txt) )
+        xbmc.log(msg=message, level=severity)
+    except UnicodeEncodeError:
+        try:
+            Lmessage = _normalize_string('%s' % (txt) )
+            xbmc.log(msg=message, level=severity)
+        except:
+            message = ('UnicodeEncodeError')
+            xbmc.log(msg=message, level=xbmc.LOGWARNING) 
+
 # plugin handle
-print "THESE ARE THE SYS ARGUMENTS: %s" % sys.argv
+_log("THESE ARE THE SYS ARGUMENTS: %s" % sys.argv)
 handle = int(sys.argv[1])
 
 FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'ifo', 'mp4', 'mov', 'iso', 'ogm']
@@ -27,8 +39,8 @@ FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").s
 OUTPUT_FILE = xbmcplugin.getSetting(handle, "output_file");
 
 if not OUTPUT_FILE:
-    OUTPUT_FILE = '/home/xbmc/missing-movies.txt'
-
+    OUTPUT_FILE = '/home/xbmc/missing-movies.txt'   
+    
 def remove_duplicates(files):
     # converting it to a set and back drops all duplicates
     return list(set(files))
@@ -50,12 +62,12 @@ def get_shares():
 
     results = []
     for s in shares:
-        print "FOUND SHARE: %s" % s
+        _log("FOUND SHARE: %s" % s)
         if s.startswith('addons://'):
-            print s + ' is an addon share, ignoring...'
+            _log(s + ' is an addon share, ignoring...')
             shares.remove(s)
         elif s.startswith('multipath://'):
-            print s + ' is a multipath share, splitting and adding individuals...'
+            _log(s + ' is a multipath share, splitting and adding individuals...')
             s = s.replace('multipath://', '')
             parts = s.split('/')
             parts = [ clean_name(f) for f in parts ]
@@ -64,16 +76,16 @@ def get_shares():
                 if b:
                     results.append(b)
         else:
-            print s + ' is a straight forward share, adding...'
+            _log(s + ' is a straight forward share, adding...')
             results.append(s)
 
     return results
 
 def get_movie_sources():
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params":{"properties": ["file"]},  "id": 1}'))
-    print result
+    _log(result)
     movies = result['result']['movies']
-    print movies
+    _log(movies)
     files = [ item['file'] for item in movies ]
     files = [ os.path.dirname(f) for f in files ]
     files = remove_duplicates(files)
@@ -87,7 +99,7 @@ def get_movie_sources():
                 f += os.sep
 
             if f.startswith(s):
-                print s + ' was confirmed as a movie share using ' + f
+                _log(s + ' was confirmed as a movie share using ' + f)
                 results.append(s)
                 shares.remove(s)
     return results
@@ -95,7 +107,7 @@ def get_movie_sources():
 def get_tv_files(show_errors):
     result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "id": 1}'))
     # NOTE:this should help me identify Yulquen's bug
-    print "VideoLibrary.GetTVShows results: %s" % result
+    _log("VideoLibrary.GetTVShows results: %s" % result)
     tv_shows = result['result']['tvshows']
     files = []
 
@@ -110,7 +122,7 @@ def get_tv_files(show_errors):
             files.extend([ e['file'] for e in episodes ])
         except KeyError:
             if show_errors:
-                xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s!" % show_name, "Contact the developer!")
+                xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s!" % show_name, "Contact the developer if this is wrong!")
 
         nothing = """
         seasons_result = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetSeasons", "params": {"tvshowid": %d}, "id": 1}' % show_id))
@@ -208,7 +220,7 @@ def show_movie_submenu():
     library_files = []
     missing = []
 
-    print "SEARCHING MOVIES"
+    _log("SEARCHING MOVIES")
     # this magic section adds the files from trailers and sets!
     for m in movies:
         f = m['file']
@@ -253,8 +265,8 @@ def show_movie_submenu():
         movie_files = set(get_files(movie_path))
 
         if not library_files.issuperset(movie_files):
-            print "%s contains missing movies!" % movie_path
-            print "missing movies: %s" % list(movie_files.difference(library_files))
+            _log("%s contains missing movies!" % movie_path)
+            _log("missing movies: %s" % list(movie_files.difference(library_files)))
             l = list(movie_files.difference(library_files))
             l.sort()
             missing.extend(l)
@@ -273,7 +285,7 @@ def show_movie_submenu():
     for movie_file in missing:
         # get the end of the filename without the extension
         if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
-            print "%s is a trailer and will be ignored!" % movie_file
+            _log("%s is a trailer and will be ignored!" % movie_file)
         else:
             addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
             #f.write(tv_file)
@@ -297,7 +309,7 @@ def show_tvshow_submenu():
         tv_files = set(get_files(tv_path))
 
         if not library_files.issuperset(tv_files):
-            print "%s contains missing TV shows!" % tv_path
+            _log("%s contains missing TV shows!" % tv_path)
             l = list(tv_files.difference(library_files))
             l.sort()
             missing.extend(l)

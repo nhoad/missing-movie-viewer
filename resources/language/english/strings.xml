@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
     <!-- Settings -->
-    <string id="31000">Misc Settings (semicolon delimited)</string>
-    <string id="31001">Custom File Extensions</string>
-    <string id="31002">Search Results File</string>
+    <string id="30000">Output Directory</string>
+    <string id="30001">Output File</string>
+    <string id="30002">Misc Settings (semicolon delimited)</string>
+    <string id="30003">Custom File Extensions</string>
 </strings>
 

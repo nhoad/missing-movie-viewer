@@ -23,12 +23,8 @@ def log(txt, severity=xbmc.LOGDEBUG):
         message = ("%s" % txt)
         xbmc.log(msg=message, level=severity)
     except UnicodeEncodeError:
-        try:
-            Lmessage = _normalize_string("%s" % txt)
-            xbmc.log(msg=message, level=severity)
-        except:
-            message = ("UnicodeEncodeError")
-            xbmc.log(msg=message, level=xbmc.LOGWARNING) 
+        message = ("UnicodeEncodeError")
+        xbmc.log(msg=message, level=xbmc.LOGWARNING) 
 
 # plugin handle
 log("THESE ARE THE SYS ARGUMENTS: %s" % sys.argv)
@@ -37,10 +33,7 @@ handle = int(sys.argv[1])
 FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'ifo', 'mp4', 'mov', 'iso', 'ogm']
 FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").split(";"))
 
-OUTPUT_FILE = xbmcplugin.getSetting(handle, "output_file");
-
-if not OUTPUT_FILE:
-    OUTPUT_FILE = "/home/xbmc/missing-movies.txt" 
+OUTPUT_FILE = xbmcplugin.getSetting(handle, "output_dir") + xbmcplugin.getSetting(handle, "output_file");
     
 def remove_duplicates(files):
     # converting it to a set and back drops all duplicates
@@ -57,6 +50,12 @@ def clean_name(text):
     text = unicode(text, 'utf8')
 
     return text
+    
+def output_to_file(list):
+    f = open(OUTPUT_FILE, 'a')
+    for item in list:
+        f.write(item + '\n')
+    f.close()
 
 def get_sources():
     sources = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetSources", "params": {"media": "video"}, "id": 1}'))['result']['sources']
@@ -262,7 +261,10 @@ def show_movie_submenu():
             l.sort()
             log("missing movies: %s" % l, xbmc.LOGNOTICE)
             missing.extend(l)
-
+			
+    if OUTPUT_FILE:        
+        output_to_file(missing);
+    
     for movie_file in missing:
         # get the end of the filename without the extension
         if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
@@ -296,6 +298,9 @@ def show_tvshow_submenu():
             log("missing episodes: %s" % l, xbmc.LOGNOTICE)
             missing.extend(l)
 
+    if OUTPUT_FILE:
+        output_to_file(missing)
+        
     for tv_file in missing:
         addDirectoryItem(tv_file, isFolder=False)
 

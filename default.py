@@ -1,5 +1,6 @@
 import sys, os
 import xbmc, xbmcgui, xbmcplugin
+import unicodedata
 import urllib
 
 import datetime
@@ -46,13 +47,14 @@ def remove_duplicates(files):
     return list(set(files))
 
 def clean_name(text):
-    text = text.replace('%21', '!')
-    text = text.replace('%3a', ':')
-    text = text.replace('%5c', '\\')
-    text = text.replace('%2f', '/')
-    text = text.replace('%2c', ',')
-    text = text.replace('%5f', '_')
-    text = text.replace('%20', ' ')
+    #text = text.replace('%21', '!')
+    #text = text.replace('%3a', ':')
+    #text = text.replace('%5c', '\\')
+    #text = text.replace('%2f', '/')
+    #text = text.replace('%2c', ',')
+    #text = text.replace('%5f', '_')
+    #text = text.replace('%20', ' ')
+    text = unicode(text, 'utf8')
 
     return text
 
@@ -119,7 +121,7 @@ def get_tv_files(show_errors):
 		
         try:
             episodes = episode_result['result']['episodes']
-            files.extend([ e['file'] for e in episodes ])
+            files.extend([ unicode(e['file'], 'utf8') for e in episodes ])
         except KeyError:
             if show_errors:
                 xbmcgui.Dialog().ok("ERROR!", "Could not retrieve episodes for %s!" % show_name, "Contact the developer if there actually are episodes!")
@@ -156,7 +158,7 @@ def file_has_extensions(filename, extensions):
 
 def get_files(path):
     results = []
-    for root, sub_folders, files in os.walk(path):
+    for root, sub_folders, files in os.walk(unicode(path, 'utf8')):
         for f in files:
             if file_has_extensions(f, FILE_EXTENSIONS):
                 f = os.path.join(root, f)
@@ -221,11 +223,11 @@ def show_movie_submenu():
             sub_trailers =  []
 
             for item in set_files['result']['files']:
-                sub_files.append(clean_name(item['file']))
+                sub_files.append(unicode(item['file'], 'utf8'))
                 try:
                     trailer = item['trailer']
                     if not trailer.startswith('http://'):
-                        library_files.append(clean_name(trailer))
+                        library_files.append(unicode(trailer, 'utf8'))
                 except KeyError:
                     pass
 
@@ -235,16 +237,16 @@ def show_movie_submenu():
             f = f.replace('stack://', '')
             parts = f.split(' , ')
 
-            parts = [ clean_name(f) for f in parts ]
+            parts = [ unicode(f, 'utf8') for f in parts ]
 
             for b in parts:
                 library_files.append(b)
         else:
-            library_files.append(clean_name(f))
+            library_files.append(unicode(f, 'utf8'))
             try:
                 trailer = m['trailer']
                 if not trailer.startswith('http://'):
-                    library_files.append(clean_name(trailer))
+                    library_files.append(unicode(trailer, 'utf8'))
             except KeyError:
                 pass
 

@@ -255,15 +255,16 @@ def show_movie_submenu():
 
         if not library_files.issuperset(movie_files):
             log("%s contains missing movies!" % movie_source, xbmc.LOGNOTICE)
-            log("missing movies: %s" % list(movie_files.difference(library_files)), xbmc.LOGNOTICE)
+            log("library files: %s" % library_files, xbmc.LOGDEBUG)
             l = list(movie_files.difference(library_files))
             l.sort()
+            log("missing movies: %s" % l, xbmc.LOGNOTICE)
             missing.extend(l)
 
     for movie_file in missing:
         # get the end of the filename without the extension
         if os.path.splitext(movie_file.lower())[0].endswith("trailer"):
-            _log("%s is a trailer and will be ignored!" % movie_file)
+            log("%s is a trailer and will be ignored!" % movie_file, xbmc.LOGINFO)
         else:
             addDirectoryItem(movie_file, isFolder=False, totalItems=len(missing))
 
@@ -287,8 +288,10 @@ def show_tvshow_submenu():
 
         if not library_files.issuperset(tv_files):
             log("%s contains missing TV shows!" % tv_source, xbmc.LOGNOTICE)
+            log("library files: %s" % library_files, xbmc.LOGDEBUG)
             l = list(tv_files.difference(library_files))
             l.sort()
+            log("missing episodes: %s" % l, xbmc.LOGNOTICE)
             missing.extend(l)
 
     for tv_file in missing:

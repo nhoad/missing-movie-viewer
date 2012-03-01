@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <setting type="lsep" label="31000" />
-    <setting id="custom_file_extensions" type="text" label="31001" default="" />
-    <setting id="output_file" type="text" label="31002" default="" />
+    <setting id="output_dir" type="folder" label="30000" default="" />
+    <setting id="output_file" type="text" label="30001" default="" />
+    <setting type="lsep" label="30002" />
+    <setting id="custom_file_extensions" type="text" label="30003" default="" />
 </settings>
 

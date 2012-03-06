@@ -26,7 +26,9 @@ FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp
 FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").split(";"))
 
 OUTPUT_FILE = xbmcplugin.getSetting(handle, "output_dir") + xbmcplugin.getSetting(handle, "output_file");
-DEBUG = xbmcplugin.getSetting(handle, "debug");
+DEBUG = False
+if xbmcplugin.getSetting(handle, "debug") == "true":
+    DEBUG = True
 
 def log(txt, severity=xbmc.LOGDEBUG):
     if DEBUG and severity == xbmc.LOGINFO:

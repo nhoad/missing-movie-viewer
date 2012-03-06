@@ -95,7 +95,7 @@ def get_movie_sources():
                 f += os.sep
 
             if f.startswith(s):
-                log("%s was confirmed as a movie share using %s" % (s, f), xbmc.LOGINFO)
+                log("%s was confirmed as a movie source using %s" % (s, f), xbmc.LOGINFO)
                 results.append(s)
                 sources.remove(s)
                 

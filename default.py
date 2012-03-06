@@ -18,23 +18,28 @@ FIRST_SUBMENU = "Unadded Movies"
 SECOND_SUBMENU = "Unadded TV Shows"
 HELP_SUBMENU = "Help!"
 
-def log(txt, severity=xbmc.LOGDEBUG):
-    try:
-        message = (u"%s" % txt)
-        xbmc.log(msg=message, level=severity)
-    except UnicodeEncodeError:
-        message = ("UnicodeEncodeError")
-        xbmc.log(msg=message, level=xbmc.LOGWARNING) 
-
 # plugin handle
-log("THESE ARE THE SYS ARGUMENTS: %s" % sys.argv)
+# log("THESE ARE THE SYS ARGUMENTS: %s" % sys.argv, xbmc.LOGNOTICE)
 handle = int(sys.argv[1])
 
 FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'ifo', 'mp4', 'mov', 'iso', 'ogm']
 FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").split(";"))
 
 OUTPUT_FILE = xbmcplugin.getSetting(handle, "output_dir") + xbmcplugin.getSetting(handle, "output_file");
-    
+DEBUG = xbmcplugin.getSetting(handle, "debug");
+
+def log(txt, severity=xbmc.LOGDEBUG):
+    if DEBUG and severity == xbmc.LOGINFO:
+        severity = xbmc.LOGNOTICE
+    try:
+        message = (u"%s" % txt)
+        xbmc.log(msg=message, level=severity)
+    except UnicodeEncodeError:
+        message = ("UnicodeEncodeError")
+        xbmc.log(msg=message, level=xbmc.LOGWARNING) 
+        
+log("MISSING MOVIE VIEWER STARTED.", xbmc.LOGNOTICE);
+
 def remove_duplicates(files):
     # converting it to a set and back drops all duplicates
     return list(set(files))

@@ -18,48 +18,43 @@ FIRST_SUBMENU = "Unadded Movies"
 SECOND_SUBMENU = "Unadded TV Shows"
 HELP_SUBMENU = "Help!"
 
-def log(txt, severity=xbmc.LOGDEBUG):
-    try:
-        message = ("%s" % txt)
-        xbmc.log(msg=message, level=severity)
-    except UnicodeEncodeError:
-        message = ("UnicodeEncodeError")
-        xbmc.log(msg=message, level=xbmc.LOGWARNING) 
-
 # plugin handle
-log("THESE ARE THE SYS ARGUMENTS: %s" % sys.argv)
+# log("THESE ARE THE SYS ARGUMENTS: %s" % sys.argv, xbmc.LOGNOTICE)
 handle = int(sys.argv[1])
 
 FILE_EXTENSIONS = ['mpg', 'mpeg', 'avi', 'flv', 'wmv', 'mkv', '264', '3g2', '3gp', 'ifo', 'mp4', 'mov', 'iso', 'ogm']
 FILE_EXTENSIONS.extend(xbmcplugin.getSetting(handle, "custom_file_extensions").split(";"))
 
 OUTPUT_FILE = xbmcplugin.getSetting(handle, "output_dir") + xbmcplugin.getSetting(handle, "output_file");
-    
+DEBUG = False
+if xbmcplugin.getSetting(handle, "debug") == "true":
+    DEBUG = True
+
+def log(txt, severity=xbmc.LOGDEBUG):
+    if DEBUG and severity == xbmc.LOGINFO:
+        severity = xbmc.LOGNOTICE
+    try:
+        message = (u"%s" % txt)
+        xbmc.log(msg=message, level=severity)
+    except UnicodeEncodeError:
+        message = ("UnicodeEncodeError")
+        xbmc.log(msg=message, level=xbmc.LOGWARNING) 
+        
+log("MISSING MOVIE VIEWER STARTED.", xbmc.LOGNOTICE);
+
 def remove_duplicates(files):
     # converting it to a set and back drops all duplicates
     return list(set(files))
 
-def clean_name(text):
-    #text = text.replace('%21', '!')
-    #text = text.replace('%3a', ':')
-    #text = text.replace('%5c', '\\')
-    #text = text.replace('%2f', '/')
-    #text = text.replace('%2c', ',')
-    #text = text.replace('%5f', '_')
-    #text = text.replace('%20', ' ')
-    text = unicode(text, 'utf8')
-
-    return text
-    
 def output_to_file(list):
     f = open(OUTPUT_FILE, 'a')
     for item in list:
-        f.write(item + '\n')
+        f.write(item + u'\n')
     f.close()
 
 def get_sources():
     sources = eval(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Files.GetSources", "params": {"media": "video"}, "id": 1}'))['result']['sources']
-    sources = [ s['file'] for s in sources ]
+    sources = [ unicode(s['file'], 'utf8') for s in sources ]
 
     results = []
     for s in sources:
@@ -71,7 +66,7 @@ def get_sources():
             log("%s is a multipath source, splitting and adding individuals..." % s, xbmc.LOGINFO)
             s = s.replace('multipath://', '')
             parts = s.split('/')
-            parts = [ clean_name(f) for f in parts ]
+            parts = [ urllib.unquote(f) for f in parts ]
 
             for b in parts:
                 if b:
@@ -87,7 +82,7 @@ def get_movie_sources():
     log(result, xbmc.LOGDEBUG)
     movies = result['result']['movies']
     log(movies, xbmc.LOGDEBUG)
-    files = [ item['file'] for item in movies ]
+    files = [ unicode(item['file'], 'utf8') for item in movies ]
     files = [ os.path.dirname(f) for f in files ]
     files = remove_duplicates(files)
 
@@ -100,7 +95,7 @@ def get_movie_sources():
                 f += os.sep
 
             if f.startswith(s):
-                log("%s was confirmed as a movie share using %s" % (s, f), xbmc.LOGINFO)
+                log("%s was confirmed as a movie source using %s" % (s, f), xbmc.LOGINFO)
                 results.append(s)
                 sources.remove(s)
                 
@@ -157,7 +152,7 @@ def file_has_extensions(filename, extensions):
 
 def get_files(path):
     results = []
-    for root, sub_folders, files in os.walk(unicode(path, 'utf8')):
+    for root, sub_folders, files in os.walk(path):
         for f in files:
             if file_has_extensions(f, FILE_EXTENSIONS):
                 f = os.path.join(root, f)
